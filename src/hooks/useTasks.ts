@@ -6,9 +6,11 @@ interface UseTasksReturn {
   tasks: Task[]
   filteredTasks: Task[]
   filter: FilterType
+  searchKeyword: string
   loading: boolean
   error: string | null
   setFilter: (f: FilterType) => void
+  setSearchKeyword: (keyword: string) => void
   addTask: (req: TaskRequest) => Promise<void>
   toggleComplete: (task: Task) => Promise<void>
   updateTask: (id: number, req: Partial<TaskRequest>) => Promise<void>
@@ -19,6 +21,7 @@ interface UseTasksReturn {
 export function useTasks(): UseTasksReturn {
   const [tasks, setTasks] = useState<Task[]>([])
   const [filter, setFilter] = useState<FilterType>('all')
+  const [searchKeyword, setSearchKeyword] = useState('')
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
@@ -38,11 +41,20 @@ export function useTasks(): UseTasksReturn {
     fetchTasks()
   }, [fetchTasks])
 
-  const filteredTasks = tasks.filter((t) => {
-    if (filter === 'active') return !t.completed
-    if (filter === 'completed') return t.completed
-    return true
-  })
+  const filteredTasks = tasks
+    .filter((t) => {
+      if (filter === 'active') return !t.completed
+      if (filter === 'completed') return t.completed
+      return true
+    })
+    .filter((t) => {
+      const keyword = searchKeyword.trim().toLowerCase()
+      if (!keyword) return true
+      return (
+        t.title.toLowerCase().includes(keyword) ||
+        (t.description ?? '').toLowerCase().includes(keyword)
+      )
+    })
 
   const addTask = async (req: TaskRequest) => {
     try {
@@ -87,9 +99,11 @@ export function useTasks(): UseTasksReturn {
     tasks,
     filteredTasks,
     filter,
+    searchKeyword,
     loading,
     error,
     setFilter,
+    setSearchKeyword,
     addTask,
     toggleComplete,
     updateTask,

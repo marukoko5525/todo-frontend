@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useTasks } from './hooks/useTasks'
 import { TaskForm } from './components/TaskForm'
 import { TaskFilter } from './components/TaskFilter'
+import { TaskSearch } from './components/TaskSearch'
 import { TaskList } from './components/TaskList'
 import type { Task } from './types/task'
 import './styles/global.css'
@@ -11,9 +12,11 @@ export default function App() {
     tasks,
     filteredTasks,
     filter,
+    searchKeyword,
     loading,
     error,
     setFilter,
+    setSearchKeyword,
     addTask,
     toggleComplete,
     updateTask,
@@ -50,6 +53,11 @@ export default function App() {
         onSubmit={handleSubmit}
         editingTask={editingTask}
         onCancelEdit={handleCancelEdit}
+      />
+
+      <TaskSearch
+        keyword={searchKeyword}
+        onKeywordChange={setSearchKeyword}
       />
 
       <TaskFilter
